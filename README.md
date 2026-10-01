@@ -2,7 +2,7 @@
 
 A YOLOv8-based object detector that identifies **infected** vs. **not-infected** ovarian regions in ultrasound images — a screening-aid prototype relevant to PCOS (Polycystic Ovary Syndrome) diagnostics.
 
-**Live demo:** [link to HF Space]
+**Live demo:** https://pcos-region-detector-4j5hh47rp6jcyysjfqynhf.streamlit.app/
 **Model:** YOLOv8n, fine-tuned on ultrasound imagery
 
 ---
