@@ -260,61 +260,95 @@ model = load_model()
 st.markdown('<div class="upload-heading">Let\'s begin our little discovery</div>', unsafe_allow_html=True)
 st.markdown('<div class="upload-sub">Drop your image or browse your files ✨</div>', unsafe_allow_html=True)
 
-uploaded = st.file_uploader(
+uploaded_files = st.file_uploader(
     "Place your ultrasound image here",
     type=["jpg", "jpeg", "png"],
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    accept_multiple_files=True
 )
 
-if uploaded:
-    image = Image.open(uploaded).convert("RGB")
-    with st.spinner("Sprinkling a little detection magic... ✨"):
-        results = model.predict(np.array(image), verbose=False)
-    r = results[0]
-    annotated = r.plot()
+if uploaded_files and len(uploaded_files) > 10:
+    st.warning("✦ Please upload up to 10 images at a time — only the first 10 will be analyzed ✦")
+    uploaded_files = uploaded_files[:10]
 
-    infected = sum(1 for b in r.boxes if model.names[int(b.cls)] == "infected")
-    notinfected = sum(1 for b in r.boxes if model.names[int(b.cls)] == "notinfected")
-    total = len(r.boxes)
+if uploaded_files:
+    total_infected = 0
+    total_notinfected = 0
 
-    st.markdown('<div class="canvas-label">✦ Your Analysis Canvas ✦</div>', unsafe_allow_html=True)
+    for idx, uploaded in enumerate(uploaded_files):
+        image = Image.open(uploaded).convert("RGB")
+        with st.spinner(f"Sprinkling a little detection magic on image {idx+1}/{len(uploaded_files)}... ✨"):
+            results = model.predict(np.array(image), verbose=False)
+        r = results[0]
+        annotated = r.plot()
 
-    annotated_rgb = annotated[:, :, ::-1]
-    from io import BytesIO
-    import base64
-    buf = BytesIO()
-    Image.fromarray(annotated_rgb).save(buf, format="PNG")
-    b64 = base64.b64encode(buf.getvalue()).decode()
+        infected = sum(1 for b in r.boxes if model.names[int(b.cls)] == "infected")
+        notinfected = sum(1 for b in r.boxes if model.names[int(b.cls)] == "notinfected")
+        total = len(r.boxes)
+        total_infected += infected
+        total_notinfected += notinfected
 
-    st.markdown(f"""
-        <div class="canvas-frame">
-            <img src="data:image/png;base64,{b64}" />
-        </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f'<div class="canvas-label">✦ Analysis Canvas — Image {idx+1} of {len(uploaded_files)} ✦</div>', unsafe_allow_html=True)
 
-    st.markdown(f"""
-        <div class="stats-row">
-            <div class="stat-card rose">
-                <div class="stat-emoji">🎀</div>
-                <div class="stat-value">{infected}</div>
-                <div class="stat-label">Infected</div>
+        annotated_rgb = annotated[:, :, ::-1]
+        from io import BytesIO
+        import base64
+        buf = BytesIO()
+        Image.fromarray(annotated_rgb).save(buf, format="PNG")
+        b64 = base64.b64encode(buf.getvalue()).decode()
+
+        st.markdown(f"""
+            <div class="canvas-frame">
+                <img src="data:image/png;base64,{b64}" />
             </div>
-            <div class="stat-card lav">
-                <div class="stat-emoji">🌷</div>
-                <div class="stat-value">{notinfected}</div>
-                <div class="stat-label">Not Infected</div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(f"""
+            <div class="stats-row">
+                <div class="stat-card rose">
+                    <div class="stat-emoji">🎀</div>
+                    <div class="stat-value">{infected}</div>
+                    <div class="stat-label">Infected</div>
+                </div>
+                <div class="stat-card lav">
+                    <div class="stat-emoji">🌷</div>
+                    <div class="stat-value">{notinfected}</div>
+                    <div class="stat-label">Not Infected</div>
+                </div>
+                <div class="stat-card cream">
+                    <div class="stat-emoji">☀️</div>
+                    <div class="stat-value">{total}</div>
+                    <div class="stat-label">Total Detections</div>
+                </div>
             </div>
-            <div class="stat-card cream">
-                <div class="stat-emoji">☀️</div>
-                <div class="stat-value">{total}</div>
-                <div class="stat-label">Total Detections</div>
+        """, unsafe_allow_html=True)
+
+        st.markdown('<div class="divider-flowers">✿ ·｡ ✧ ｡· ✿</div>', unsafe_allow_html=True)
+
+    if len(uploaded_files) > 1:
+        st.markdown(f"""
+            <div class="stats-row">
+                <div class="stat-card rose">
+                    <div class="stat-emoji">🎀</div>
+                    <div class="stat-value">{total_infected}</div>
+                    <div class="stat-label">Total Infected</div>
+                </div>
+                <div class="stat-card lav">
+                    <div class="stat-emoji">🌷</div>
+                    <div class="stat-value">{total_notinfected}</div>
+                    <div class="stat-label">Total Not Infected</div>
+                </div>
+                <div class="stat-card cream">
+                    <div class="stat-emoji">📊</div>
+                    <div class="stat-value">{len(uploaded_files)}</div>
+                    <div class="stat-label">Images Analyzed</div>
+                </div>
             </div>
-        </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 else:
     st.markdown("""
         <div style="text-align:center; opacity:0.55; color:#694A73; margin-top:1.5rem; font-size:0.9rem;">
-        🕯️ Awaiting your ultrasound image to begin the little discovery...
+        🕯️ Awaiting your ultrasound image(s) to begin the little discovery...
         </div>
     """, unsafe_allow_html=True)
 
