@@ -3,34 +3,60 @@ from ultralytics import YOLO
 from PIL import Image
 import numpy as np
 
-st.set_page_config(page_title="PCOS Region Detector", page_icon="🩺", layout="centered")
+st.set_page_config(page_title="PCOS Region Detector", page_icon="🎀", layout="centered")
 
 st.markdown("""
     <style>
+    .stApp { background: linear-gradient(180deg, #fff0f5 0%, #ffe4ec 100%); }
     .main { padding-top: 1rem; }
-    .stApp { background-color: #0e1117; }
-    h1 { color: #e0e0e0; font-weight: 700; }
-    .subtitle { color: #9ca3af; font-size: 0.95rem; margin-bottom: 1.5rem; }
+    h1 {
+        color: #d6336c;
+        font-weight: 800;
+        text-align: center;
+        font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    }
+    .subtitle {
+        color: #a64d79;
+        font-size: 0.95rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-family: 'Trebuchet MS', sans-serif;
+    }
+    [data-testid="stFileUploader"] {
+        background: #ffffff;
+        border: 2px dashed #ff8fab;
+        border-radius: 18px;
+        padding: 12px;
+    }
     .metric-box {
-        background: #1a1d24;
-        border: 1px solid #2d3139;
-        border-radius: 10px;
-        padding: 16px 20px;
-        margin-top: 16px;
+        background: #ffffff;
+        border: 2px solid #ffb3c6;
+        border-radius: 20px;
+        padding: 18px 22px;
+        margin-top: 18px;
+        box-shadow: 0 4px 12px rgba(255, 143, 171, 0.25);
     }
     .metric-row { display: flex; justify-content: space-around; text-align: center; }
-    .metric-value { font-size: 1.8rem; font-weight: 700; }
-    .metric-label { font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
-    .infected { color: #f87171; }
-    .notinfected { color: #4ade80; }
-    .total { color: #60a5fa; }
+    .metric-value { font-size: 1.9rem; font-weight: 800; font-family: 'Trebuchet MS', sans-serif; }
+    .metric-label {
+        font-size: 0.78rem;
+        color: #c9184a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+    }
+    .infected { color: #e5383b; }
+    .notinfected { color: #52b788; }
+    .total { color: #d6336c; }
+    .stAlert { border-radius: 16px; }
+    img { border-radius: 18px; border: 3px solid #ffb3c6; }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🩺 PCOS Ultrasound Region Detector</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🎀 PCOS Ultrasound Region Detector 🎀</h1>", unsafe_allow_html=True)
 st.markdown(
-    '<p class="subtitle">YOLOv8 model detecting infected vs. not-infected ovarian regions. '
-    'Research/portfolio demo only — not a diagnostic tool.</p>',
+    '<p class="subtitle">A cute lil YOLOv8 model spotting infected vs. not-infected ovarian regions ✨<br>'
+    'Research/portfolio demo only — not a diagnostic tool 💕</p>',
     unsafe_allow_html=True
 )
 
@@ -40,11 +66,11 @@ def load_model():
 
 model = load_model()
 
-uploaded = st.file_uploader("Upload an ultrasound image", type=["jpg", "jpeg", "png"])
+uploaded = st.file_uploader("💮 Upload an ultrasound image", type=["jpg", "jpeg", "png"])
 
 if uploaded:
     image = Image.open(uploaded).convert("RGB")
-    with st.spinner("Running detection..."):
+    with st.spinner("Sprinkling some detection magic... ✨"):
         results = model.predict(np.array(image), verbose=False)
     r = results[0]
     annotated = r.plot()
@@ -60,18 +86,18 @@ if uploaded:
             <div class="metric-row">
                 <div>
                     <div class="metric-value infected">{infected}</div>
-                    <div class="metric-label">Infected</div>
+                    <div class="metric-label">🎀 Infected</div>
                 </div>
                 <div>
                     <div class="metric-value notinfected">{notinfected}</div>
-                    <div class="metric-label">Not Infected</div>
+                    <div class="metric-label">🎀 Not Infected</div>
                 </div>
                 <div>
                     <div class="metric-value total">{total}</div>
-                    <div class="metric-label">Total</div>
+                    <div class="metric-label">🎀 Total</div>
                 </div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 else:
-    st.info("Upload an ultrasound frame to see detections.")
+    st.info("💗 Upload an ultrasound frame to see the detections!")
